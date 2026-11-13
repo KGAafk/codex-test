@@ -1,14 +1,16 @@
 -- Youmu specialist v1. Source ranges/timings are from 05_youmu_main.lua.
 -- These are heuristics, not measured frame-perfect collision guarantees.
-YOUMU_REVISION = "youmu-specialist-v1"
+YOUMU_REVISION = "youmu-specialist-v2"
 local last_time = -1
 local shot_at = -1000
 local card_at = -1000
+local jump_at = -1000
 
 function youmu_tick()
     if battle_time < last_time then
         shot_at = -1000
         card_at = -1000
+        jump_at = -1000
     end
     last_time = battle_time
 end
@@ -165,6 +167,18 @@ function youmu_movement_step()
         return true
     end
     youmu_prepare_card()
+    -- Alice's long range makes the inherited ground dash a poor default.
+    -- Restore an airborne approach only with room, spirit and no near projectile;
+    -- release the inputs next frame so the existing defense can take priority.
+    if enemy_char == 3 and my_act <= 10 and ey < 160 and dis >= 300
+        and dis <= 750 and my_rei >= 500 and enemy_act < 300
+        and battle_time - jump_at >= 45 then
+        jump_at = battle_time
+        key_on(front)
+        key_on(ACT_UP)
+        key_on(ACT_D)
+        return true
+    end
     if dis > 170 and ey < 160 and enemy_char ~= 3 then
         key_on(front)
         key_on(ACT_D)

@@ -12,7 +12,7 @@ function main()
 	char_calling()
 --ステージが 核融合炉心部 だと超反応モードに
 	set_printsabot()
-print("[Youmu specialist v1] active")
+print("[Youmu specialist v2] active")
 
 while true do
 --スレッド外初期化
@@ -202,7 +202,7 @@ while true do
 								print("JA>J6A",dis);
 								key_event2(ACT_A,front);
 					--6C>憑坐の縛
-						elseif my_act==411 and (enemy_act>=50 and enemy_act<=89) and my_allframe>=25-5 and my_limit<100 and card_check(103) then
+						elseif my_act==411 and (enemy_act>=50 and enemy_act<=89) and my_allframe>=25-5 and my_limit<100 and my_card==103 and enemy_frame<=1 then
 							card_1st(103);
 							if enemy_frame<=1 then
 								print("6C>スキルカード：憑坐の縛",dis);
@@ -232,7 +232,7 @@ while true do
 						end
 						
 			--AAAA>生死流転斬3hit
-					elseif my_act==322 and ((enemy_act>=50 and enemy_act<=89) or (enemy_act>=143 and enemy_act<=166 and my_frontside<=300)) and my_limit<100 and card_check(102) and ((card_check(200) and my_spell_more(2000)==false) or card_check(200)==false) then
+					elseif my_act==322 and ((enemy_act>=50 and enemy_act<=89) or (enemy_act>=143 and enemy_act<=166 and my_frontside<=300)) and my_limit<100 and my_card==102 and enemy_hitstop<=3 and enemy_hitstop>=1 and ((card_check(200) and my_spell_more(2000)==false) or card_check(200)==false) then
 						card_1st(102);
 						if enemy_hitstop<=3 and enemy_hitstop>=1 then
 							if my_hitstop>=1 then

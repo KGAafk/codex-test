@@ -1802,7 +1802,7 @@ function guard_pun_condi()
     if 
     enemy_act>=300 and 
     dis2<=250 and
-    ((x<ex and enemy_dir==1) or (ex<x and enemy_dir==-1)) and
+    ((x<ex and enemy_dir==-1) or (ex<x and enemy_dir==1)) and
     get_special_data(0,10)<=20 and --無念無想をフィルタ
     weather~=13 and
     (
