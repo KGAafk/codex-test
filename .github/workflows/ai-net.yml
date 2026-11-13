@@ -23,7 +23,7 @@ jobs:
         id: boost
         with:
           path: boost_1_71_0
-          key: soku-boost-1.71-msvc2022-x86-v1
+          key: soku-boost-1.71-msvc2022-x86-v2
       - name: Build Boost 1.71
         if: steps.boost.outputs.cache-hit != 'true'
         shell: cmd
@@ -35,15 +35,28 @@ jobs:
           cd boost_1_71_0
           call bootstrap.bat
           if errorlevel 1 exit /b 1
-          b2.exe --with-filesystem --with-system toolset=msvc address-model=32 variant=release link=static runtime-link=static threading=multi stage -j 2
+          b2.exe --with-filesystem --with-system --with-program_options toolset=msvc address-model=32 variant=release link=static runtime-link=static threading=multi stage -j 2
+          if errorlevel 1 exit /b 1
+      - name: Build author libraries
+        shell: cmd
+        run: |
+          mkdir author-build
+          cl /nologo /c /O2 /MT /EHsc /Iboost_1_71_0 /Iauthor-lib /Foauthor-build\utility.obj author-lib\org\click3\utility.cpp
+          if errorlevel 1 exit /b 1
+          lib /nologo /out:author-build\utility_release_static.lib author-build\utility.obj
+          if errorlevel 1 exit /b 1
+          cl /nologo /c /O2 /MT /EHsc /Iboost_1_71_0 /Iauthor-lib /Foauthor-build\dll_hack_lib.obj author-lib\org\click3\dll_hack_lib.cpp
+          if errorlevel 1 exit /b 1
+          lib /nologo /out:author-build\dll_hack_lib_release_static.lib author-build\dll_hack_lib.obj
           if errorlevel 1 exit /b 1
       - name: Build x86
         shell: pwsh
         run: |
           $root = (Get-Location).Path
           @"
-          <Project><PropertyGroup><IncludePath>$root\boost_1_71_0;$root\author-lib;`$(IncludePath)</IncludePath><LibraryPath>$root\boost_1_71_0\stage\lib;$root\author-lib\lib;`$(LibraryPath)</LibraryPath></PropertyGroup></Project>
+          <Project><PropertyGroup><IncludePath>$root\boost_1_71_0;$root\author-lib;`$(IncludePath)</IncludePath><LibraryPath>$root\boost_1_71_0\stage\lib;$root\author-build;`$(LibraryPath)</LibraryPath></PropertyGroup></Project>
           "@ | Set-Content ai/Directory.Build.props
+          '<Project><ItemDefinitionGroup><ClCompile><RuntimeLibrary>MultiThreaded</RuntimeLibrary></ClCompile></ItemDefinitionGroup></Project>' | Set-Content ai/Directory.Build.targets
           msbuild ai/th123_ai.sln /t:th123_ai /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v143 /m
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
@@ -51,3 +64,4 @@ jobs:
           name: ai-net-experimental
           path: ai/Release/th123_ai.exe
           if-no-files-found: error
+
