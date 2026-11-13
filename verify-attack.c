@@ -1,7 +1,6 @@
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
-#include "my_luacode.h"
 #include <stdio.h>
 int main(int argc, char **argv) {
   const char *script = argc > 1 ? argv[1] : "verify-attack.lua";
