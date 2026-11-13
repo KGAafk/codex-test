@@ -18,12 +18,13 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x86
+          toolset: 14.29
       - uses: microsoft/setup-msbuild@v2
       - uses: actions/cache@v4
         id: boost
         with:
           path: boost_1_71_0
-          key: soku-boost-1.71-msvc2022-x86-v2
+          key: soku-boost-1.71-msvc142-x86-v3
       - name: Build Boost 1.71
         if: steps.boost.outputs.cache-hit != 'true'
         shell: cmd
@@ -35,7 +36,8 @@ jobs:
           cd boost_1_71_0
           call bootstrap.bat msvc
           if errorlevel 1 (type bootstrap.log & exit /b 1)
-          b2.exe --with-filesystem --with-system --with-program_options toolset=msvc address-model=32 variant=release link=static runtime-link=static threading=multi stage -j 2
+          echo using msvc : 14.2 : cl.exe ; > project-config.jam
+          b2.exe --with-filesystem --with-system --with-program_options toolset=msvc-14.2 address-model=32 variant=release link=static runtime-link=static threading=multi stage -j 2
           if errorlevel 1 exit /b 1
       - name: Build author libraries
         shell: cmd
@@ -57,12 +59,13 @@ jobs:
           <Project><PropertyGroup><IncludePath>$root\boost_1_71_0;$root\author-lib;`$(IncludePath)</IncludePath><LibraryPath>$root\boost_1_71_0\stage\lib;$root\author-build;`$(LibraryPath)</LibraryPath></PropertyGroup></Project>
           "@ | Set-Content ai/Directory.Build.props
           '<Project><ItemDefinitionGroup><ClCompile><RuntimeLibrary>MultiThreaded</RuntimeLibrary></ClCompile></ItemDefinitionGroup></Project>' | Set-Content ai/Directory.Build.targets
-          msbuild ai/th123_ai.sln /t:th123_ai /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v143 /m
+          msbuild ai/th123_ai.sln /t:th123_ai /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v142 /m
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         with:
           name: ai-net-experimental
           path: ai/Release/th123_ai.exe
           if-no-files-found: error
+
 
 
