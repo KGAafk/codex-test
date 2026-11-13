@@ -26,7 +26,9 @@ if (FORCE_PDB)
 endif ()
 
 # SokuLib (vendored into this repository, no submodule needed)
-add_subdirectory(SokuLib)
+# EXCLUDE_FROM_ALL：SokuLib 自带的两个测试目标已经跟不上它自己的 API 了，
+# 不参与默认构建；我们链接 SokuLib 时会作为依赖自动编译。
+add_subdirectory(SokuLib EXCLUDE_FROM_ALL)
 
 # Module
 add_library(
