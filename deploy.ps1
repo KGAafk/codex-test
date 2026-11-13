@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     把编译好的 mod 装进非想天则，并注册到 ModLoaderSettings.json。
     支持单文件 DLL，也支持一个包含若干 mod 文件夹的「产物目录」。
