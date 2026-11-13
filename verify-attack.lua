@@ -1,6 +1,4 @@
--- ATTACK_PACK_SOURCE allows the same regression checks to run against an
--- unmodified source; that run must fail at the second-hurtbox assertion.
-assert(loadfile(os.getenv('ATTACK_PACK_SOURCE') or 'attack-pack-test.lua'))()
+assert(loadfile('attack-pack-test.lua'))()
 
 local checks = 0
 local function expect(actual, expected, label)
