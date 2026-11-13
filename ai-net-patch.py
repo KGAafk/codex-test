@@ -32,3 +32,13 @@ old = b'::FindWindowW(name.c_str(), text.c_str())'
 new = b'::FindWindowW(name.c_str(), name == L"th123_110a" ? NULL : text.c_str())'
 assert b.count(old) == 1
 p.write_bytes(b.replace(old, new))
+p = Path('ai/th123_ai/main.cpp')
+b = p.read_bytes()
+needle = b'\t\tif(seen!=0x08 && seen!=0x09) {'
+if needle not in b:
+    needle = needle.replace(b'\n',b'\r\n')
+assert b.count(needle)==1
+log = b'\t\t{ static int last = -1; if (seen != last) { FILE *f = fopen("ai_net_debug.log", "a"); if (f) { fprintf(f, "scene=%d mode=%d foreground=%d\\n", seen, mode, wh == GetForegroundWindow()); fclose(f); } last = seen; } }\r\n'
+if b'\r\n' not in b: log = log.replace(b'\r\n', b'\n')
+b = b.replace(needle, log + needle)
+p.write_bytes(b)
