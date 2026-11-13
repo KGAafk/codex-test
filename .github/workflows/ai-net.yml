@@ -33,8 +33,8 @@ jobs:
           7z x boost.7z -y > nul
           if errorlevel 1 exit /b 1
           cd boost_1_71_0
-          call bootstrap.bat
-          if errorlevel 1 exit /b 1
+          call bootstrap.bat msvc
+          if errorlevel 1 (type bootstrap.log & exit /b 1)
           b2.exe --with-filesystem --with-system --with-program_options toolset=msvc address-model=32 variant=release link=static runtime-link=static threading=multi stage -j 2
           if errorlevel 1 exit /b 1
       - name: Build author libraries
@@ -64,4 +64,5 @@ jobs:
           name: ai-net-experimental
           path: ai/Release/th123_ai.exe
           if-no-files-found: error
+
 
