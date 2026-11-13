@@ -1,0 +1,11 @@
+{
+  "name": "BossMode",
+  "author": "local dev",
+  "priority": "0",
+  "description": "神早苗 Boss 化：血量/伤害/体型倍率放大，配合神AI(th123_ai.exe)控制 2P 即可打 Boss。",
+  "descriptionI18n": [],
+  "version": "0.1.0",
+  "versionNumbers": ["0.1.0"],
+  "main": "BossMode.dll",
+  "configFiles": ["BossMode.ini"]
+}

@@ -31,10 +31,15 @@ jobs:
           Copy-Item build/GuardGauge.dll pkg/GuardGauge/
           Copy-Item mod.json pkg/GuardGauge/
           Copy-Item README.md pkg/GuardGauge/ -ErrorAction SilentlyContinue
+
+          New-Item -ItemType Directory -Force -Path pkg/BossMode | Out-Null
+          Copy-Item build/BossMode.dll pkg/BossMode/
+          Copy-Item mod.boss.json pkg/BossMode/mod.json
+          Copy-Item BossMode.ini pkg/BossMode/
           Get-ChildItem -Recurse pkg | Select-Object FullName, Length
 
-      - name: Upload module
+      - name: Upload modules
         uses: actions/upload-artifact@v4
         with:
-          name: GuardGauge
-          path: pkg/GuardGauge
+          name: soku-mods
+          path: pkg

@@ -51,3 +51,19 @@ target_link_libraries(
 
 install(TARGETS "${PROJECT_NAME}" DESTINATION .)
 install(FILES $<TARGET_PDB_FILE:${PROJECT_NAME}> DESTINATION . OPTIONAL)
+
+# ---------------- BossMode（神早苗 Boss 化） ----------------
+add_library(
+        BossMode
+        MODULE
+        src_boss/main.cpp
+        src_boss/version.rc
+)
+target_compile_options(BossMode PRIVATE /Zi)
+target_compile_definitions(BossMode PRIVATE DIRECTINPUT_VERSION=0x0800 CURL_STATICLIB _CRT_SECURE_NO_WARNINGS $<$<CONFIG:Debug>:_DEBUG>)
+target_include_directories(BossMode PRIVATE include SokuLib/directx)
+target_link_directories(BossMode PRIVATE lib)
+target_link_libraries(BossMode SokuLib shlwapi d3d9 d3dx9)
+
+install(TARGETS BossMode DESTINATION .)
+install(FILES $<TARGET_PDB_FILE:BossMode> DESTINATION . OPTIONAL)
