@@ -62,8 +62,8 @@ jobs:
           $root = (Get-Location).Path
           @"
           <Project><PropertyGroup><IncludePath>$root\boost_1_71_0;$root\author-lib;`$(IncludePath)</IncludePath><LibraryPath>$root\boost_1_71_0\stage\lib;$root\author-build;`$(LibraryPath)</LibraryPath></PropertyGroup></Project>
-          "@ | Set-Content ai/Directory.Build.props
-          '<Project><ItemDefinitionGroup><ClCompile><RuntimeLibrary>MultiThreaded</RuntimeLibrary></ClCompile></ItemDefinitionGroup></Project>' | Set-Content ai/Directory.Build.targets
+          "@ | Set-Content ai/Directory.Build.targets
+          (Get-Content ai/Directory.Build.targets -Raw).Replace('</Project>','<ItemDefinitionGroup><ClCompile><RuntimeLibrary>MultiThreaded</RuntimeLibrary></ClCompile></ItemDefinitionGroup></Project>') | Set-Content ai/Directory.Build.targets
           msbuild ai/th123_ai.sln /t:th123_ai /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v142 /m
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
@@ -71,6 +71,7 @@ jobs:
           name: ai-net-experimental
           path: ai/Release/th123_ai.exe
           if-no-files-found: error
+
 
 
 
