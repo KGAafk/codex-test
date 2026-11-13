@@ -15,6 +15,7 @@ jobs:
           git clone https://github.com/click3/org-click3.git author-lib
           git -C author-lib checkout f704dbc6bf8e8fb5bbfc36b4cb9a20c5798128f1
           python ai-net-patch.py
+          python telemetry-patch.py
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x86
