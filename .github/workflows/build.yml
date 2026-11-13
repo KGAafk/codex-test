@@ -1,0 +1,40 @@
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC (x86)
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x86
+
+      - name: Configure
+        run: cmake -S . -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Package module
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path pkg/GuardGauge | Out-Null
+          Copy-Item build/GuardGauge.dll pkg/GuardGauge/
+          Copy-Item mod.json pkg/GuardGauge/
+          Copy-Item README.md pkg/GuardGauge/ -ErrorAction SilentlyContinue
+          Get-ChildItem -Recurse pkg | Select-Object FullName, Length
+
+      - name: Upload module
+        uses: actions/upload-artifact@v4
+        with:
+          name: GuardGauge
+          path: pkg/GuardGauge

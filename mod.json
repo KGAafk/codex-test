@@ -1,0 +1,11 @@
+{
+  "name": "GuardGauge",
+  "author": "local dev",
+  "priority": "0",
+  "description": "破防槽：格挡时累积，不格挡时缓慢回落；满槽红闪提示。P0 阶段仅做显示，不改变游戏状态。",
+  "descriptionI18n": [],
+  "version": "0.1.0",
+  "versionNumbers": ["0.1.0"],
+  "main": "GuardGauge.dll",
+  "configFiles": []
+}
