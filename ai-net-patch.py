@@ -42,3 +42,15 @@ log = b'\t\t{ static int last = -1; if (seen != last) { FILE *f = fopen("ai_net_
 if b'\r\n' not in b: log = log.replace(b'\r\n', b'\n')
 b = b.replace(needle, log + needle)
 p.write_bytes(b)
+p = Path('ai/th123_ai/main.cpp')
+b = p.read_bytes()
+old = b'\tunsigned int t2;'
+assert b.count(old) == 1
+b = b.replace(old, b'\tint t2;')
+old = b't2 = t1+15-timeGetTime();'
+assert b.count(old) == 1
+b = b.replace(old, b't2 = static_cast<int>(t1+15-timeGetTime());')
+old = b'if(t2 > 15)t2 = 15;'
+assert b.count(old) == 1
+b = b.replace(old, b'if(t2 > 15)t2 = 15;\n\t\tif(t2 < 0)t2 = 0;')
+p.write_bytes(b)
