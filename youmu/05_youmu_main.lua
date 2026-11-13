@@ -202,11 +202,11 @@ while true do
 								print("JA>J6A",dis);
 								key_event2(ACT_A,front);
 					--6C>œß¿‚Ì”›
-						elseif my_act==411 and (enemy_act>=50 and enemy_act<=89) and my_allframe>=25-5 and my_limit<100 and my_card==103 and enemy_frame<=1 then
+						elseif my_act==411 and (enemy_act>=50 and enemy_act<=89) and my_allframe>=25-5 and my_limit<100 and my_card==103 and is_card_use and enemy_frame<=1 then
 							card_1st(103);
 							if enemy_frame<=1 then
 								print("6C>ƒXƒLƒ‹ƒJ[ƒhFœß¿‚Ì”›",dis);
-								card_use(103);
+								youmu_card_once(103);
 							end
 						elseif my_act==411 and (enemy_act>=50 and enemy_act<=89) and my_allframe>=25-5 and my_limit<100 and get_skill_lv(0,3)>=0 and my_rei>=200 and enemy_frame<=1 then
 							print("6C>ƒRƒ}ƒ“ƒhFBœß¿‚Ì”›",dis);
@@ -232,7 +232,7 @@ while true do
 						end
 						
 			--AAAA>¶€—¬“]a3hit
-					elseif my_act==322 and ((enemy_act>=50 and enemy_act<=89) or (enemy_act>=143 and enemy_act<=166 and my_frontside<=300)) and my_limit<100 and my_card==102 and enemy_hitstop<=3 and enemy_hitstop>=1 and ((card_check(200) and my_spell_more(2000)==false) or card_check(200)==false) then
+					elseif my_act==322 and ((enemy_act>=50 and enemy_act<=89) or (enemy_act>=143 and enemy_act<=166 and my_frontside<=300)) and my_limit<100 and my_card==102 and is_card_use and enemy_hitstop<=3 and enemy_hitstop>=1 and ((card_check(200) and my_spell_more(2000)==false) or card_check(200)==false) then
 						card_1st(102);
 						if enemy_hitstop<=3 and enemy_hitstop>=1 then
 							if my_hitstop>=1 then
@@ -240,7 +240,7 @@ while true do
 							end
 							wait(5);
 							print("AAAA -> ƒXƒLƒ‹ƒJ[ƒhF¶€—¬“]a");
-							card_use(102);
+							youmu_card_once(102);
 						end
 					elseif my_act==322 and get_skill_lv(0,2)>=0 and ((enemy_act>=50 and enemy_act<=89) or (enemy_act>=143 and enemy_act<=166)) and enemy_hitstop<=8 and enemy_hitstop>=1 and my_rei>=200 and ((card_check(200) and my_spell_more(2000)==false) or card_check(200)==false) then
 						print("AAAA -> ƒRƒ}ƒ“ƒhFC¶€—¬“]a");
@@ -279,14 +279,14 @@ while true do
 						wait(11);
 						key_event(ACT_A);
 						yield();key_resetEX();
-						elseif my_act==305 and (enemy_act>=50 and enemy_act<=89) and my_limit<100 and card_check(101) and ey>0 then
+						elseif my_act==305 and (enemy_act>=50 and enemy_act<=89) and my_limit<100 and my_card==101 and is_card_use and enemy_hitstop<=3 and enemy_hitstop>=2 and ey>0 then
 							card_1st(101);
 							if enemy_hitstop<=3 and enemy_hitstop>=2 then
 								if my_hitstop>=1 then
 									wait(my_hitstop+10)
 								end
 								print("DA -> ƒXƒLƒ‹ƒJ[ƒhFŒ·Œa");
-								card_use(101);
+								youmu_card_once(101);
 							end
 						elseif my_act==305 and (enemy_act>=50 and enemy_act<=89) and my_limit<100 and enemy_hitstop<=6 and enemy_hitstop>=5 and get_skill_lv(0,1)>=0 and ((my_dir==1 and x>=1000)or(my_dir==-1 and x<=280)) and my_rei>=200 and ey>0 then
 							print("DA -> ƒRƒ}ƒ“ƒhFCŒ·Œa");
@@ -418,11 +418,11 @@ while true do
 			key_event2(ACT_B,front);
 			
 --F‚ñ‚È‚Æ‚±‚ë‚©‚ç—Ó‹Ca
-	elseif (my_act==302 or my_act==304 or my_act==305) and (enemy_act>=143 and enemy_act<=166) and card_check(108) then
+	elseif (my_act==302 or my_act==304 or my_act==305) and (enemy_act>=143 and enemy_act<=166) and my_card==108 and is_card_use and enemy_hitstop<=3 and enemy_hitstop>=2 then
 		card_1st(108);
 		if enemy_hitstop<=3 and enemy_hitstop>=2 then
 			print("UŒ‚ -> ƒXƒLƒ‹ƒJ[ƒhF—Ó‹Ca");
-			card_use(108);
+			youmu_card_once(108);
 		end
 	elseif (my_act==302 or my_act==304 or my_act==305) and (enemy_act>=143 and enemy_act<=166) and get_skill_lv(0,8)>=0 and enemy_hitstop<=8 and enemy_hitstop>=1 and my_rei>=400 then
 		print("UŒ‚ -> ƒRƒ}ƒ“ƒhFB—Ó‹Ca");
@@ -439,11 +439,11 @@ while true do
 			wait(my_hitstop-5)
 		end
 --DA>Œ·Œa
-	elseif (my_act==303 or my_act==305 or my_act==330) and (enemy_act>=50 and enemy_act<=89) and card_check(101) then
+	elseif (my_act==303 or my_act==305 or my_act==330) and (enemy_act>=50 and enemy_act<=89) and my_card==101 and is_card_use and enemy_hitstop<=3 and enemy_hitstop>=2 then
 		card_1st(101);
 		if enemy_hitstop<=3 and enemy_hitstop>=2 then
 			print("DA>ƒXƒLƒ‹ƒJ[ƒhFŒ·Œa");
-			card_use(101);
+			youmu_card_once(101);
 		end
 	elseif ey==0 and (dis<=120 or enemy_backside<=100) and my_act==305 and (enemy_act>=50 and enemy_act<=89) and get_skill_lv(0,1)>=0 and enemy_hitstop<=8 and enemy_hitstop>=1 and my_rei>=400 then
 		print("DA>ƒRƒ}ƒ“ƒhFCŒ·Œa");
@@ -669,7 +669,7 @@ while true do
 					is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(64)==1 then
 						print("”½Ë‰ºŠEa");
-						card_use(100);
+						youmu_card_once(100);
 		
 		--Œ‹æææåa,104,505,506,g
 			--g,a
@@ -707,7 +707,7 @@ while true do
 					is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(64)==1 then
 						print("Œ‹æææåa");
-						card_use(104);
+						youmu_card_once(104);
 		
 		--—Ó‹Ca,108,510,511,g
 
@@ -748,7 +748,7 @@ while true do
 					is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(64)==1 then
 						print("—Ó‹Ca");
-						card_use(108);
+						youmu_card_once(108);
 		
 	--¥ƒXƒLƒ‹623
 
@@ -791,7 +791,7 @@ while true do
 					is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(64)==1 then
 						print("Œ·Œa");
-						card_use(101);
+						youmu_card_once(101);
 		
 		--Ü•š–³ŠÔ,105,525,526,g,’ÇŒ‚,529
 			--g
@@ -832,7 +832,7 @@ while true do
 					is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(64)==1 then
 						print("Ü•š–³ŠÔ");
-						card_use(105);
+						youmu_card_once(105);
 		
 		--àvŠáŒ•,109,530,531,g
 			--g,a
@@ -873,7 +873,7 @@ while true do
 					is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(128)==1 then
 						print("àvŠáŒ•");
-						card_use(109);
+						youmu_card_once(109);
 
 	--¥ƒXƒLƒ‹214
 		--¶€—¬“]a,102,540,541,g,’Ç‰Á“ü—Í‚Q’i–ÚˆÈ~,540
@@ -915,7 +915,7 @@ while true do
 					--is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(64)==1 then
 						print("¶€—¬“]a");
-						card_use(102);
+						youmu_card_once(102);
 		
 		--S´a,106,545,546,g
 			--g,a
@@ -956,7 +956,7 @@ while true do
 					is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(64)==1 then
 						print("S´a");
-						card_use(106);
+						youmu_card_once(106);
 		
 		--“ªã‰Ô™’a,110,550,551,g,hold
 			--g
@@ -999,7 +999,7 @@ while true do
 					--is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(64)==1 then
 						print("“ªã‰Ô™’a");
-						card_use(110);
+						youmu_card_once(110);
 
 	--¥ƒXƒLƒ‹22
 		--œß¿‚Ì”›,103,560,561,g
@@ -1047,7 +1047,7 @@ while true do
 					is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(64)==1 then
 						print("œß¿‚Ì”›");
-						card_use(103);
+						youmu_card_once(103);
 		
 		--ˆ«‚µ°,107,565,566,g
 			--g
@@ -1094,7 +1094,7 @@ while true do
 					is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(64)==1 then
 						print("ˆ«‚µ°");
-						card_use(107);
+						youmu_card_once(107);
 		
 		--Šï‚Ñ”¼g,111,570,571,572,573,g,a
 			--g
@@ -1135,7 +1135,7 @@ while true do
 					--is_dir_front==true and 
 					subs_count>=530 and nega_count ~= 1 and math.random(64)==1 then
 						print("Šï‚Ñ”¼g");
-						card_use(111);
+						youmu_card_once(111);
 --]]
 			
 
