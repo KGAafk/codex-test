@@ -208,7 +208,7 @@ extern "C" __declspec(dllexport) bool Initialize(HMODULE hMyModule, HMODULE hPar
 	g_ogOnRender  = SokuLib::TamperDword(&SokuLib::VTable_BattleManager.onRender,  CBattleManager_OnRender);
 	VirtualProtect((PVOID)RDATA_SECTION_OFFSET, RDATA_SECTION_SIZE, old, &old);
 
-	logf("hooks installed: process=%p render=%p\n", (void *)g_ogOnProcess, (void *)g_ogOnRender);
+	logf("hooks installed: process=%d render=%d\n", g_ogOnProcess != nullptr, g_ogOnRender != nullptr);
 
 	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 	return true;
