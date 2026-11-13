@@ -22,6 +22,9 @@ jobs:
         run: |
           $env:INCLUDE = "$env:VCPKG_INSTALLATION_ROOT\installed\x86-windows-static\include;$env:INCLUDE"
           $env:LIB = "$env:VCPKG_INSTALLATION_ROOT\installed\x86-windows-static\lib;$env:LIB"
+          @'
+          <Project><PropertyGroup><IncludePath>C:\vcpkg\installed\x86-windows-static\include;$(IncludePath)</IncludePath><LibraryPath>C:\vcpkg\installed\x86-windows-static\lib;$(LibraryPath)</LibraryPath></PropertyGroup></Project>
+          '@ | Set-Content ai/Directory.Build.props
           msbuild ai/th123_ai.sln /t:th123_ai /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v143 /m
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
@@ -29,3 +32,4 @@ jobs:
           name: ai-net-experimental
           path: ai/Release/th123_ai.exe
           if-no-files-found: error
+
