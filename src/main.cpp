@@ -9,6 +9,7 @@
 //  依赖：SokuLib / SokuModLoader
 // =====================================================================
 
+#define NOMINMAX
 #include <SokuLib.hpp>
 #include <algorithm>
 #include <cstring>
@@ -56,22 +57,22 @@ namespace {
 
 			g_bg[i].setPosition(SokuLib::Vector2i{x, BAR_Y});
 			g_bg[i].setSize(SokuLib::Vector2u{BAR_W, BAR_H});
-			g_bg[i].setFillColor(SokuLib::DxSokuColor(0, 0, 0, 160));
-			g_bg[i].setBorderColor(SokuLib::DxSokuColor(255, 255, 255, 80));
+			g_bg[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(0, 0, 0, 160));
+			g_bg[i].setBorderColor(SokuLib::DrawUtils::DxSokuColor(255, 255, 255, 80));
 
 			g_fill[i].setPosition(SokuLib::Vector2i{x, BAR_Y});
 			g_fill[i].setSize(SokuLib::Vector2u{BAR_W, BAR_H});
-			g_fill[i].setFillColor(SokuLib::DxSokuColor(80, 200, 255, 200));
-			g_fill[i].setBorderColor(SokuLib::DxSokuColor(255, 255, 255, 0));
+			g_fill[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(80, 200, 255, 200));
+			g_fill[i].setBorderColor(SokuLib::DrawUtils::DxSokuColor(255, 255, 255, 0));
 		}
 	}
 
 	void updateGauge(Gauge &g, bool blocking)
 	{
 		if (blocking)
-			g.value = std::min(1.0f, g.value + GAIN_PER_FRAME);
+			g.value = (std::min)(1.0f, g.value + GAIN_PER_FRAME);
 		else
-			g.value = std::max(0.0f, g.value - DECAY_PER_FRAME);
+			g.value = (std::max)(0.0f, g.value - DECAY_PER_FRAME);
 
 		if (g.value >= 1.0f) {
 			g.value = 0.0f;
@@ -96,9 +97,9 @@ namespace {
 
 		g_fill[i].setSize(SokuLib::Vector2u{static_cast<unsigned>(w), BAR_H});
 		if (g.flash > 0)
-			g_fill[i].setFillColor(SokuLib::DxSokuColor(255, 40, 40, 230));
+			g_fill[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(255, 40, 40, 230));
 		else
-			g_fill[i].setFillColor(SokuLib::DxSokuColor(80, 200, 255, 200));
+			g_fill[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(80, 200, 255, 200));
 		g_fill[i].draw();
 	}
 
