@@ -28,6 +28,11 @@ is_dir_front=true; is_card_use=true; my_card=203; hanreidis=500; hanreiy=0
 my_act=300; enemy_act=50; my_hitstop=2
 assert(youmu_confirm_choice()=='A','A hit confirm')
 my_act=320; assert(youmu_confirm_choice()=='A','AA hit confirm')
+my_hitstop=8; assert(youmu_confirm_wait(),'preserve confirmed AA during early hitstop')
+my_hitstop=3; assert(not youmu_confirm_wait() and youmu_confirm_choice()=='A','continue AA in window')
+enemy_act=150; my_hitstop=8; assert(not youmu_confirm_wait(),'do not suppress defense on block')
+enemy_act=50; my_limit=100; assert(not youmu_confirm_wait(),'do not suppress defense at limit')
+my_limit=0; my_hitstop=2
 enemy_act=154; assert(youmu_confirm_choice()==nil,'guard is not hit')
 assert(youmu_pressure_choice()==nil,'do not force slow high against low guard')
 enemy_act=150; assert(youmu_pressure_choice()==nil,'do not force slow low against high guard')

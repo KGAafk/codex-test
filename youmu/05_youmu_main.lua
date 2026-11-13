@@ -39,6 +39,8 @@ while true do
 		card_use(14);
 
 --▼台風▼：近接状態からの強引な状況変更を行う行動。スペカなど使用。
+	elseif youmu_confirm_wait() then
+		-- Hold decision until confirmed-hit cancel window.
 	elseif youmu_confirm_step() then
 		-- Confirmed normal hits take priority over neutral reactions.
 	elseif react_rejecttaihu_condi()==true then

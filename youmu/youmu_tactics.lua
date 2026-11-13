@@ -29,6 +29,17 @@ local function contact_window()
         and my_limit < 100 and is_dir_front == true
 end
 
+function youmu_confirm_wait()
+    -- During a confirmed normal hit, preserve the existing cancel window.
+    -- The observation loop can otherwise start a multi-frame reaction before
+    -- hitstop reaches the author's 1..3-frame continuation window.
+    if my_char ~= 5 or not is_dir_front or my_limit >= 100 or my_hitstop <= 3
+        or enemy_act < 50 or enemy_act > 89 then return false end
+    if my_act == 300 or my_act == 320 or my_act == 301 then return true end
+    if my_act == 306 and (my_combo >= 5 or ey > 0 or my_yspeed >= 5) then return true end
+    return false
+end
+
 function youmu_confirm_choice()
     if not contact_window() or enemy_act < 50 or enemy_act > 89 then return nil end
     if my_act == 300 or my_act == 320 then return "A" end
