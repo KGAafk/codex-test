@@ -1,0 +1,9 @@
+-- Load only for Youmu; selecting another character releases all AI input.
+if my_char == 5 then
+    require("05_youmu_main.lua")
+else
+    function main()
+        print("Youmu specialist: choose Youmu (character 5).")
+        while true do key_reset(); yield() end
+    end
+end

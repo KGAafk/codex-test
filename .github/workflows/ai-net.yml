@@ -73,10 +73,17 @@ jobs:
           if errorlevel 1 exit /b 1
           verify-attack.exe
           if errorlevel 1 exit /b 1
+          python verify-youmu-source.py
+          if errorlevel 1 exit /b 1
+          verify-attack.exe verify-youmu.lua
+          if errorlevel 1 exit /b 1
       - uses: actions/upload-artifact@v4
         with:
           name: ai-net-experimental
-          path: ai/Release/th123_ai.exe
+          path: |
+            ai/Release/th123_ai.exe
+            verify-attack.exe
+            youmu/
           if-no-files-found: error
 
 
