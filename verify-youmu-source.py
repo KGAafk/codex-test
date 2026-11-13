@@ -12,7 +12,7 @@ skills = source[start:end]
 assert len(re.findall(r'lvr22\(ACT_[BC]\)', skills)) == 6
 assert not re.search(r'lvr214\(ACT_[BC]\)', skills)
 for card in (103, 107, 111):
-    assert f'card_use({card})' in skills
+    assert f'youmu_card_once({card})' in skills
 assert not re.search(r'for i=1,10 do\s*card_use\(', source)
 assert 'my_act==10 and my_preact[1]==404 and y==0' in source
 assert 'youmu_confirm_step()' in source and 'youmu_pressure_step()' in source
