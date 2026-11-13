@@ -69,7 +69,7 @@ jobs:
       - name: Verify attack strategy
         shell: cmd
         run: |
-          cl /nologo /MT /I ai\lua_engine verify-attack.c ai\Release\lua_engine.lib /Fe:verify-attack.exe
+          cl /nologo /TP /MT /I ai\lua_engine verify-attack.c ai\Release\lua_engine.lib /Fe:verify-attack.exe
           if errorlevel 1 exit /b 1
           verify-attack.exe
           if errorlevel 1 exit /b 1
@@ -78,6 +78,7 @@ jobs:
           name: ai-net-experimental
           path: ai/Release/th123_ai.exe
           if-no-files-found: error
+
 
 
 
