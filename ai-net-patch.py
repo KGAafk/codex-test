@@ -26,3 +26,9 @@ s = project.read_text(encoding='utf-8')
 s = s.replace('luac.exe -s -o api.bin %(FullPath)', 'copy /Y %(FullPath) api.bin')
 project.write_text(s, encoding='utf-8')
 Path('ai/th123_ai/api.bin').write_bytes(Path('ai/th123_ai/api.ai').read_bytes())
+p = Path('ai/th123_ai/main.cpp')
+b = p.read_bytes()
+old = b'::FindWindowW(name.c_str(), text.c_str())'
+new = b'::FindWindowW(name.c_str(), name == L"th123_110a" ? NULL : text.c_str())'
+assert b.count(old) == 1
+p.write_bytes(b.replace(old, new))
