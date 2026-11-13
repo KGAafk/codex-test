@@ -12,7 +12,7 @@ function main()
 	char_calling()
 --ステージが 核融合炉心部 だと超反応モードに
 	set_printsabot()
-print("[Youmu specialist v2] active")
+print("[Youmu specialist v3] active")
 
 while true do
 --スレッド外初期化

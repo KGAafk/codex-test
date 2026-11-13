@@ -1,6 +1,6 @@
--- Youmu specialist v1. Source ranges/timings are from 05_youmu_main.lua.
+-- Youmu specialist v3. Source ranges/timings are from 05_youmu_main.lua.
 -- These are heuristics, not measured frame-perfect collision guarantees.
-YOUMU_REVISION = "youmu-specialist-v2"
+YOUMU_REVISION = "youmu-specialist-v3"
 local last_time = -1
 local shot_at = -1000
 local card_at = -1000
@@ -43,14 +43,9 @@ function youmu_confirm_choice()
 end
 
 function youmu_pressure_choice()
-    -- Restore the AA branches formerly hidden by unconditional AA>AAA.
-    -- Use the author's existing 6A/3A cancels against current high/low guard.
-    if not contact_window() or y ~= 0 or ey ~= 0 or dis > 200 then return nil end
-    if my_act ~= 320 then return nil end
-    if (enemy_act >= 154 and enemy_act <= 157)
-        or (enemy_act >= 163 and enemy_act <= 166) then return "6A" end
-    if (enemy_act >= 150 and enemy_act <= 153)
-        or (enemy_act >= 159 and enemy_act <= 162) then return "3A" end
+    -- Do not lock into a slow high/low attack from an observed guard pose:
+    -- the defender can change guard or interrupt before it becomes active.
+    -- Leave this to the author's existing follow-up until measured in-game.
     return nil
 end
 
@@ -167,11 +162,11 @@ function youmu_movement_step()
         return true
     end
     youmu_prepare_card()
-    -- Alice's long range makes the inherited ground dash a poor default.
-    -- Restore an airborne approach only with room, spirit and no near projectile;
-    -- release the inputs next frame so the existing defense can take priority.
-    if enemy_char == 3 and my_act <= 10 and ey < 160 and dis >= 300
-        and dis <= 750 and my_rei >= 500 and enemy_act < 300
+    -- General candidate based on the original 8HJ range/resource conditions.
+    -- Existing object prediction is incomplete: this is not a safety guarantee.
+    -- Release next frame so the defense branches can run again.
+    if my_act <= 10 and ey < 160 and dis >= 456
+        and dis <= 750 and my_rei >= 500 and my_rfunc > 0.65 and enemy_act <= 10
         and battle_time - jump_at >= 45 then
         jump_at = battle_time
         key_on(front)
@@ -179,7 +174,7 @@ function youmu_movement_step()
         key_on(ACT_D)
         return true
     end
-    if dis > 170 and ey < 160 and enemy_char ~= 3 then
+    if dis > 170 and ey < 160 and enemy_act <= 10 then
         key_on(front)
         key_on(ACT_D)
     elseif dis > 110 then

@@ -29,8 +29,8 @@ my_act=300; enemy_act=50; my_hitstop=2
 assert(youmu_confirm_choice()=='A','A hit confirm')
 my_act=320; assert(youmu_confirm_choice()=='A','AA hit confirm')
 enemy_act=154; assert(youmu_confirm_choice()==nil,'guard is not hit')
-assert(youmu_pressure_choice()=='6A','low guard pressure')
-enemy_act=150; assert(youmu_pressure_choice()=='3A','high guard pressure')
+assert(youmu_pressure_choice()==nil,'do not force slow high against low guard')
+enemy_act=150; assert(youmu_pressure_choice()==nil,'do not force slow low against high guard')
 my_limit=100; assert(youmu_pressure_choice()==nil,'no cancel after limit')
 my_limit=0; my_hitstop=0; my_act=0; enemy_act=0
 assert(youmu_neutral_choice()=='A','close neutral attack')
@@ -61,18 +61,30 @@ enemy_dir=1; assert(not guard_pun_condi(),'ignore opponent facing away')
 x=700; ex=600; enemy_dir=1; assert(guard_pun_condi(),'guard opponent facing right')
 enemy_dir=-1; assert(not guard_pun_condi(),'ignore mirrored opponent facing away')
 function get_fflags(side,flag) return flag==32 end
-enemy_char=3; enemy_act=0; my_act=0; y=0; ey=0; dis=500; my_rei=1000
+enemy_char=3; enemy_act=0; my_act=0; y=0; ey=0; dis=500; my_rei=1000; my_rfunc=0.9
 my_char=5; my_hp=10000; enemy_hp=10000; battle_time=200
 subs_count=1000; nega_count=1000; is_dir_front=true
 my_card=203; is_card_use=true; inputs={}
-assert(youmu_movement_step(),'Alice airborne approach')
-local up, dash=false,false
-for _,e in ipairs(inputs) do
-  if e[1]=='on' and e[2]==ACT_UP then up=true end
-  if e[1]=='on' and e[2]==ACT_D then dash=true end
+for char=0,19 do
+  for _,dir in ipairs({-1,1}) do
+    enemy_char=char; my_dir=dir; front=dir==1 and ACT_RIGHT or ACT_LEFT
+    battle_time=battle_time+60; inputs={}
+    assert(youmu_movement_step(),'general airborne approach '..char)
+    local up, dash, correct=false,false,false
+    for _,e in ipairs(inputs) do
+      if e[1]=='on' and e[2]==ACT_UP then up=true end
+      if e[1]=='on' and e[2]==ACT_D then dash=true end
+      if e[1]=='on' and e[2]==front then correct=true end
+    end
+    assert(up and dash and correct,'approach keys and mirrored direction '..char)
+    inputs={}; battle_time=battle_time+1
+    assert(youmu_movement_step(),'movement remains responsive')
+    for _,e in ipairs(inputs) do assert(not(e[1]=='on' and e[2]==ACT_UP),'no repeat jump during cooldown') end
+  end
 end
-assert(up and dash,'approach presses up and dash')
-inputs={}; battle_time=201
-assert(youmu_movement_step(),'movement remains responsive')
-for _,e in ipairs(inputs) do assert(not(e[1]=='on' and e[2]==ACT_UP),'no repeat jump during cooldown') end
+function enemy_obj_range_in() return true end
+inputs={}; battle_time=battle_time+60
+assert(not youmu_movement_step() and #inputs==0,'do not bypass existing projectile check')
+function enemy_obj_range_in() return false end
+my_act=60; assert(not youmu_movement_step(),'no approach during hitstun')
 print('Youmu syntax and tactical regression checks passed')
