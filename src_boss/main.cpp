@@ -89,12 +89,9 @@ namespace {
 		int maxHp = static_cast<int>(10000 * g_cfg.hpMult);
 
 		if (!g_hpApplied) {
-			obj.maxHP = static_cast<short>(maxHp);
 			obj.hp    = static_cast<short>(maxHp);
 			g_hpApplied = true;
 			logf("hp set to %d\n", maxHp);
-		} else if (obj.maxHP != maxHp) {
-			obj.maxHP = static_cast<short>(maxHp);
 		}
 
 		// ---- 2) 体型 ----
