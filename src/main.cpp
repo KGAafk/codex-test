@@ -1,45 +1,58 @@
 // =====================================================================
 //  GuardGauge - 东方非想天则 破防槽 Mod
 //  ---------------------------------------------------------------------
-//  机制：格挡时累积「破防槽」，不格挡时缓慢回落；
-//        槽满后触发破防（当前版本 P0：只做槽的显示与累积/回落，
-//        满槽会红闪但暂不改变游戏状态，便于先验证整条编译与运行链路）。
-//
-//  目标版本：th123 1.10a (MD5 DF35D1FBC7B583317ADABE8CD9F53B2E)
-//  依赖：SokuLib / SokuModLoader
+//  P0：槽常驻显示 + 格挡累积 / 松开回落 + 满槽红闪（不改游戏状态）
+//  另外：写 GuardGauge.log，用于确认钩子是否挂上、槽值是否在变。
 // =====================================================================
 
 #define NOMINMAX
 #include <SokuLib.hpp>
 #include <algorithm>
 #include <cstring>
+#include <cstdio>
+#include <cstdarg>
 
 namespace {
-	constexpr float GAIN_PER_FRAME  = 0.012f;   // 每帧格挡累积
-	constexpr float DECAY_PER_FRAME = 0.004f;   // 每帧不格挡回落
+	constexpr float GAIN_PER_FRAME  = 0.012f;
+	constexpr float DECAY_PER_FRAME = 0.004f;
 	constexpr int   BAR_W      = 120;
-	constexpr int   BAR_H      = 8;
-	constexpr int   BAR_Y      = 430;
-	constexpr int   BAR_MARGIN = 16;
+	constexpr int   BAR_H      = 10;
+	constexpr int   BAR_Y      = 400;
+	constexpr int   BAR_MARGIN = 20;
 	constexpr int   FLASH_TIME = 45;
 
 	struct Gauge {
-		float value = 0.f;   // 0..1
-		int   flash = 0;     // >0 时闪红
+		float value = 0.f;
+		int   flash = 0;
 	};
 
 	Gauge g_gauge[2];
 	SokuLib::DrawUtils::RectangleShape g_bg[2];
 	SokuLib::DrawUtils::RectangleShape g_fill[2];
+	SokuLib::SWRFont g_font;
+	SokuLib::DrawUtils::Sprite g_title;
 	bool g_init = false;
+
+	FILE *g_log = nullptr;
+	unsigned g_frames = 0;
+	bool g_loggedProcess = false;
+	bool g_loggedRender = false;
 
 	int  (SokuLib::BattleManager::*g_ogOnProcess)() = nullptr;
 	void (SokuLib::BattleManager::*g_ogOnRender)()  = nullptr;
 
-	// 是否处于格挡状态：优先看 FrameData 的 guarding 位，
-	// 再兜底看动作编号是否落在格挡硬直区间（含空中格挡）。
-	// 注意：动作与帧数据挂在 CharacterManager::objectBase 上，
-	//       格挡位是 frameFlags 联合体里的 guarding。
+	void logf(const char *fmt, ...)
+	{
+		if (g_log == nullptr)
+			return;
+
+		va_list args;
+		va_start(args, fmt);
+		vfprintf(g_log, fmt, args);
+		va_end(args);
+		fflush(g_log);
+	}
+
 	bool isBlocking(const SokuLib::CharacterManager &c)
 	{
 		const SokuLib::ObjectManager &obj = c.objectBase;
@@ -50,20 +63,49 @@ namespace {
 		       obj.action <= SokuLib::ACTION_WRONGBLOCK_LOW_HUGE_BLOCKSTUN;
 	}
 
-	void initBars()
+	void initAll()
 	{
 		for (int i = 0; i < 2; ++i) {
 			int x = (i == 0) ? BAR_MARGIN : 640 - BAR_MARGIN - BAR_W;
 
-			g_bg[i].setPosition(SokuLib::Vector2i{x, BAR_Y});
 			g_bg[i].setSize(SokuLib::Vector2u{BAR_W, BAR_H});
-			g_bg[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(0, 0, 0, 160));
-			g_bg[i].setBorderColor(SokuLib::DrawUtils::DxSokuColor(255, 255, 255, 80));
+			g_bg[i].setPosition(SokuLib::Vector2i{x, BAR_Y});
+			g_bg[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(0, 0, 0, 180));
+			g_bg[i].setBorderColor(SokuLib::DrawUtils::DxSokuColor(255, 255, 255, 140));
 
+			g_fill[i].setSize(SokuLib::Vector2u{0, BAR_H});
 			g_fill[i].setPosition(SokuLib::Vector2i{x, BAR_Y});
-			g_fill[i].setSize(SokuLib::Vector2u{BAR_W, BAR_H});
-			g_fill[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(80, 200, 255, 200));
-			g_fill[i].setBorderColor(SokuLib::DrawUtils::DxSokuColor(255, 255, 255, 0));
+			g_fill[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(80, 200, 255, 210));
+			g_fill[i].setBorderColor(SokuLib::DrawUtils::DxSokuColor(0, 0, 0, 0));
+		}
+
+		// 标题文字：能看到它就说明绘制通路是通的
+		SokuLib::FontDescription desc;
+		desc.r1 = 255; desc.r2 = 255;
+		desc.g1 = 255; desc.g2 = 255;
+		desc.b1 = 255; desc.b2 = 255;
+		desc.height = 16;
+		desc.weight = FW_BOLD;
+		desc.italic = 0;
+		desc.shadow = 4;
+		desc.bufferSize = 1000000;
+		desc.charSpaceX = 0;
+		desc.charSpaceY = 0;
+		desc.offsetX = 0;
+		desc.offsetY = 0;
+		desc.useOffset = 0;
+		strcpy(desc.faceName, "MonoSpatialModSWR");
+		g_font.create();
+		g_font.setIndirect(desc);
+
+		SokuLib::Vector2<int> realSize;
+		if (g_title.texture.createFromText("GUARD GAUGE", g_font, {400, 40}, &realSize)) {
+			g_title.setSize(realSize.to<unsigned>());
+			g_title.rect.width = realSize.x;
+			g_title.rect.height = realSize.y;
+			g_title.setPosition(SokuLib::Vector2i{320 - realSize.x / 2, 70});
+		} else {
+			logf("createFromText failed\n");
 		}
 	}
 
@@ -82,13 +124,11 @@ namespace {
 			--g.flash;
 	}
 
-	void drawBar(int i)
+	void drawGauge(int i)
 	{
 		const Gauge &g = g_gauge[i];
 
-		if (g.value <= 0.0f && g.flash <= 0)
-			return;
-
+		// 空槽也画，保证一眼能看到
 		g_bg[i].draw();
 
 		int w = (g.flash > 0) ? BAR_W : static_cast<int>(BAR_W * g.value);
@@ -97,21 +137,37 @@ namespace {
 
 		g_fill[i].setSize(SokuLib::Vector2u{static_cast<unsigned>(w), BAR_H});
 		if (g.flash > 0)
-			g_fill[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(255, 40, 40, 230));
+			g_fill[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(255, 40, 40, 235));
 		else
-			g_fill[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(80, 200, 255, 200));
+			g_fill[i].setFillColor(SokuLib::DrawUtils::DxSokuColor(80, 200, 255, 210));
 		g_fill[i].draw();
 	}
 
 	int __fastcall CBattleManager_OnProcess(SokuLib::BattleManager *This)
 	{
 		if (!g_init) {
-			initBars();
+			initAll();
 			g_init = true;
 		}
+		if (!g_loggedProcess) {
+			g_loggedProcess = true;
+			logf("onProcess: first call\n");
+		}
 
-		updateGauge(g_gauge[0], isBlocking(This->leftCharacterManager));
-		updateGauge(g_gauge[1], isBlocking(This->rightCharacterManager));
+		const SokuLib::CharacterManager &left  = This->leftCharacterManager;
+		const SokuLib::CharacterManager &right = This->rightCharacterManager;
+
+		updateGauge(g_gauge[0], isBlocking(left));
+		updateGauge(g_gauge[1], isBlocking(right));
+
+		++g_frames;
+		if (g_frames % 120 == 0)
+			logf("frame=%u L(action=%u guard=%d v=%.2f) R(action=%u guard=%d v=%.2f)\n",
+			     g_frames,
+			     static_cast<unsigned>(left.objectBase.action),
+			     isBlocking(left) ? 1 : 0, g_gauge[0].value,
+			     static_cast<unsigned>(right.objectBase.action),
+			     isBlocking(right) ? 1 : 0, g_gauge[1].value);
 
 		return (This->*g_ogOnProcess)();
 	}
@@ -120,18 +176,22 @@ namespace {
 	{
 		(This->*g_ogOnRender)();
 
-		drawBar(0);
-		drawBar(1);
+		if (!g_loggedRender) {
+			g_loggedRender = true;
+			logf("onRender: first call\n");
+		}
+
+		g_title.draw();
+		drawGauge(0);
+		drawGauge(1);
 	}
 }
 
-// 校验游戏版本（1.10a）
 extern "C" __declspec(dllexport) bool CheckVersion(const BYTE hash[16])
 {
 	return memcmp(hash, SokuLib::targetHash, sizeof(SokuLib::targetHash)) == 0;
 }
 
-// 由 mod loader 调用，在这里装钩子
 extern "C" __declspec(dllexport) bool Initialize(HMODULE hMyModule, HMODULE hParentModule)
 {
 	DWORD old;
@@ -139,10 +199,16 @@ extern "C" __declspec(dllexport) bool Initialize(HMODULE hMyModule, HMODULE hPar
 	(void)hMyModule;
 	(void)hParentModule;
 
+	g_log = fopen("GuardGauge.log", "w");
+	if (g_log != nullptr)
+		logf("Initialize ok, targetHash matched\n");
+
 	VirtualProtect((PVOID)RDATA_SECTION_OFFSET, RDATA_SECTION_SIZE, PAGE_EXECUTE_WRITECOPY, &old);
 	g_ogOnProcess = SokuLib::TamperDword(&SokuLib::VTable_BattleManager.onProcess, CBattleManager_OnProcess);
 	g_ogOnRender  = SokuLib::TamperDword(&SokuLib::VTable_BattleManager.onRender,  CBattleManager_OnRender);
 	VirtualProtect((PVOID)RDATA_SECTION_OFFSET, RDATA_SECTION_SIZE, old, &old);
+
+	logf("hooks installed: process=%p render=%p\n", (void *)g_ogOnProcess, (void *)g_ogOnRender);
 
 	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 	return true;
