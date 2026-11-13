@@ -1,0 +1,31 @@
+name: AI experimental build
+on:
+  push:
+    branches: [ai-net-experiment]
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch AI source
+        shell: pwsh
+        run: |
+          git clone https://github.com/click3/th123_ai.git ai
+          git -C ai checkout 4cd9d204f353dd10d3c483dcea1b429d341171de
+          python ai-net-patch.py
+      - name: Install dependencies
+        shell: pwsh
+        run: vcpkg install boost-filesystem:x86-windows-static boost-spirit:x86-windows-static boost-format:x86-windows-static
+      - uses: microsoft/setup-msbuild@v2
+      - name: Build x86
+        shell: pwsh
+        run: |
+          $env:INCLUDE = "$env:VCPKG_INSTALLATION_ROOT\installed\x86-windows-static\include;$env:INCLUDE"
+          $env:LIB = "$env:VCPKG_INSTALLATION_ROOT\installed\x86-windows-static\lib;$env:LIB"
+          msbuild ai/th123_ai.sln /t:th123_ai /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v143 /m
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai-net-experimental
+          path: ai/Release/th123_ai.exe
+          if-no-files-found: error
