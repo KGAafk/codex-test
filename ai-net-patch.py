@@ -18,3 +18,6 @@ assert b.count(old) == 1
 b = b.replace(old, new)
 p.write_bytes(b)
 
+q = Path('ai/inc_version/inc_version.cpp')
+b = q.read_bytes()
+q.write_bytes(b'#include <iostream>\r\n' + b)

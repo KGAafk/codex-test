@@ -39,6 +39,11 @@ jobs:
           echo using msvc : 14.2 : cl.exe ; > project-config.jam
           b2.exe --with-filesystem --with-system --with-program_options toolset=msvc-14.2 address-model=32 variant=release link=static runtime-link=static threading=multi stage -j 2
           if errorlevel 1 exit /b 1
+      - uses: actions/cache/save@v4
+        if: steps.boost.outputs.cache-hit != 'true'
+        with:
+          path: boost_1_71_0
+          key: soku-boost-1.71-msvc142-x86-v3
       - name: Build author libraries
         shell: cmd
         run: |
@@ -66,6 +71,7 @@ jobs:
           name: ai-net-experimental
           path: ai/Release/th123_ai.exe
           if-no-files-found: error
+
 
 
 
