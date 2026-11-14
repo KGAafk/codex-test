@@ -16,6 +16,12 @@ jobs:
           git -C author-lib checkout f704dbc6bf8e8fb5bbfc36b4cb9a20c5798128f1
           python ai-net-patch.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m unittest -v test_delay_queue_patch
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python delay_queue_patch.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python generate_delay_queue_test.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m unittest -v test_explicit_player_patch
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python explicit-player-patch.py
@@ -42,6 +48,10 @@ jobs:
           cl /nologo /EHsc /MT /I ai\th123_ai verify-search-key-generated.cpp /Fe:verify-search-key-generated.exe
           if errorlevel 1 exit /b 1
           verify-search-key-generated.exe
+          if errorlevel 1 exit /b 1
+          cl /nologo /EHsc /MT verify-delay-queue-generated.cpp /Fe:verify-delay-queue-generated.exe
+          if errorlevel 1 exit /b 1
+          verify-delay-queue-generated.exe
           if errorlevel 1 exit /b 1
           cl /nologo /EHsc /MT verify-telemetry-generated.cpp /Fe:verify-telemetry-generated.exe
           if errorlevel 1 exit /b 1
