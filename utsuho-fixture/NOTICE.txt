@@ -1,0 +1,1 @@
+Author Shinaus 20261104 18_utsuho_main.lua fixture for regression; see youmu/readme.txt for original readme.

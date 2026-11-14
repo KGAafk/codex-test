@@ -20,6 +20,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python explicit-player-patch.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python generate-search-key-test.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python telemetry-patch.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python coroutine-diagnostics-patch.py
@@ -34,6 +36,10 @@ jobs:
           cl /nologo /EHsc /MT verify-explicit-player.cpp /Fe:verify-explicit-player.exe
           if errorlevel 1 exit /b 1
           verify-explicit-player.exe
+          if errorlevel 1 exit /b 1
+          cl /nologo /EHsc /MT /I ai\th123_ai verify-search-key-generated.cpp /Fe:verify-search-key-generated.exe
+          if errorlevel 1 exit /b 1
+          verify-search-key-generated.exe
           if errorlevel 1 exit /b 1
       - uses: microsoft/setup-msbuild@v2
       - uses: actions/cache@v4
@@ -94,6 +100,18 @@ jobs:
           verify-attack.exe verify-youmu.lua
           if errorlevel 1 exit /b 1
           verify-attack.exe verify-coroutine.lua
+          if errorlevel 1 exit /b 1
+          cl /nologo /TP /MT /I ai\lua_engine verify-coroutine-protection.cpp /Fe:verify-coroutine-protection.exe /link ai\Release\lua_engine.lib
+          if errorlevel 1 exit /b 1
+          verify-coroutine-protection.exe
+          if errorlevel 1 exit /b 1
+          verify-coroutine-protection.exe unprotected
+          if not errorlevel 1 exit /b 1
+          python -m unittest -v test_utsuho_bounded
+          if errorlevel 1 exit /b 1
+          python make_utsuho_bounded.py --source utsuho-fixture --destination utsuho-test-candidate
+          if errorlevel 1 exit /b 1
+          verify-attack.exe verify-utsuho-bounded.lua
           if errorlevel 1 exit /b 1
       - uses: actions/upload-artifact@v4
         with:
