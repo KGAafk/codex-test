@@ -12,6 +12,7 @@ code = r'''
     // which may differ from game's interpreted key state or delayed events.
     {
         static int enabled = -1;
+        static int schema_v2 = 0;
         static FILE *trace = NULL;
         static int last_frame = -1;
         static int lines = 0;
@@ -19,11 +20,16 @@ code = r'''
             const char *flag = getenv("SOKU_AI_TELEMETRY");
             enabled = flag && flag[0] == '1' && flag[1] == '\0';
             if (enabled) {
-                trace = fopen("ai_telemetry.csv", "a+");
+                const char *schema = getenv("SOKU_AI_TELEMETRY_SCHEMA");
+                schema_v2 = schema && schema[0] == '2' && schema[1] == '\0';
+                trace = fopen(schema_v2 ? "ai_telemetry_v2.csv" : "ai_telemetry.csv", "a+");
                 if (trace) {
                     fseek(trace, 0, SEEK_END);
-                    if (ftell(trace) == 0)
-                        fprintf(trace, "wall_ms,scene,frame,player,foreground,requested_mask,my_char,enemy_char,my_x,my_y,enemy_x,enemy_y,my_action,enemy_action,my_frame,enemy_frame,my_hp,enemy_hp,my_rei,enemy_rei,my_hitstop,enemy_hitstop,my_combo,my_limit,my_dir,enemy_dir,my_fflags,enemy_fflags,my_aflags,enemy_aflags,my_key0,my_key1,my_key2,my_key3,my_key4,my_key5,my_key6,my_key7,enemy_key0,enemy_key1,enemy_key2,enemy_key3,enemy_key4,enemy_key5,enemy_key6,enemy_key7\n");
+                    if (ftell(trace) == 0) {
+                        fprintf(trace, "wall_ms,scene,frame,player,foreground,requested_mask,my_char,enemy_char,my_x,my_y,enemy_x,enemy_y,my_action,enemy_action,my_frame,enemy_frame,my_hp,enemy_hp,my_rei,enemy_rei,my_hitstop,enemy_hitstop,my_combo,my_limit,my_dir,enemy_dir,my_fflags,enemy_fflags,my_aflags,enemy_aflags,my_key0,my_key1,my_key2,my_key3,my_key4,my_key5,my_key6,my_key7,enemy_key0,enemy_key1,enemy_key2,enemy_key3,enemy_key4,enemy_key5,enemy_key6,enemy_key7");
+                        if (schema_v2) fprintf(trace, ",process_id,my_gauge,my_card_cached,my_hand0,my_hand1,my_hand2,my_hand3,my_hand4,weather");
+                        fputc('\n', trace);
+                    }
                 } else enabled = 0;
             }
         }
@@ -39,6 +45,11 @@ code = r'''
                 my_data.fflags, enemy_data.fflags, my_data.aflags, enemy_data.aflags);
             for (int i = 0; i < 8; ++i) fprintf(trace, ",%d", my_data.keyState[i]);
             for (int i = 0; i < 8; ++i) fprintf(trace, ",%d", enemy_data.keyState[i]);
+            if (schema_v2) {
+                fprintf(trace, ",%lu,%d,%d", GetCurrentProcessId(), my_data.gauge, my_data.card_id);
+                for (int i = 0; i < 5; ++i) fprintf(trace, ",%d", my_data.card[i].id);
+                fprintf(trace, ",%d", weather);
+            }
             fputc('\n', trace);
             if (++lines % 60 == 0) fflush(trace);
             last_frame = battle_time;

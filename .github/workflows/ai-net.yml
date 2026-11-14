@@ -24,6 +24,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python telemetry-patch.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python generate-telemetry-test.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python coroutine-diagnostics-patch.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: ilammy/msvc-dev-cmd@v1
@@ -40,6 +42,10 @@ jobs:
           cl /nologo /EHsc /MT /I ai\th123_ai verify-search-key-generated.cpp /Fe:verify-search-key-generated.exe
           if errorlevel 1 exit /b 1
           verify-search-key-generated.exe
+          if errorlevel 1 exit /b 1
+          cl /nologo /EHsc /MT verify-telemetry-generated.cpp /Fe:verify-telemetry-generated.exe
+          if errorlevel 1 exit /b 1
+          python verify-telemetry-output.py verify-telemetry-generated.exe
           if errorlevel 1 exit /b 1
       - uses: microsoft/setup-msbuild@v2
       - uses: actions/cache@v4
